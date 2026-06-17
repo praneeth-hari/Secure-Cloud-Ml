@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>SecureCloudML — Predict Data Security</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div id="wrapper">
+
+  <!-- Header -->
+  <div id="header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24" fill="#fff" width="32" height="32">
+        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Enhancing The Data Transmission Security In Cloud Using Machine Learning</h1>
+      <p class="subtitle">ML-powered network intrusion detection system</p>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div id="menu">
+    <ul>
+      <li><a href="/index">Home</a></li>
+      <li><a href="/Predict" class="active">Predict Data Security</a></li>
+      <li class="logout"><a href="/Logout">Logout</a></li>
+    </ul>
+  </div>
+
+  <!-- Hero Banner -->
+  <div class="hero-banner">
+    <img src="{{ url_for('static', filename='images/banner.jpg') }}" alt="Cloud Security" class="hero-img"/>
+    <div class="hero-text-overlay">
+      <h2>Cloud Data Attack Detection</h2>
+      <p>Upload your network traffic CSV file to detect attacks using 5 trained ML models with AES-256 encrypted transmission.</p>
+    </div>
+  </div>
+
+  <!-- Predict content -->
+  <div class="predict-container">
+
+    <div class="section-title">Detect Network Attacks</div>
+
+    <!-- Security feature cards -->
+    <div class="security-cards">
+      <div class="sec-card">
+        <div class="sec-card-icon">
+          <svg viewBox="0 0 24 24" fill="#1a73e8" width="28" height="28">
+            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+          </svg>
+        </div>
+        <div class="sec-label">AES-256-CBC Encryption</div>
+        <div class="sec-desc">Data encrypted before transmission using military-grade AES-256</div>
+      </div>
+      <div class="sec-card">
+        <div class="sec-card-icon">
+          <svg viewBox="0 0 24 24" fill="#1a73e8" width="28" height="28">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/>
+          </svg>
+        </div>
+        <div class="sec-label">5 ML Models</div>
+        <div class="sec-desc">KNN &middot; ANN &middot; ANN+ABC &middot; Random Forest &middot; XGBoost</div>
+      </div>
+      <div class="sec-card">
+        <div class="sec-card-icon">
+          <svg viewBox="0 0 24 24" fill="#1a73e8" width="28" height="28">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+          </svg>
+        </div>
+        <div class="sec-label">99%+ Accuracy</div>
+        <div class="sec-desc">XGBoost achieves 99.92% detection accuracy on KDD Cup dataset</div>
+      </div>
+    </div>
+
+    {% if data %}
+    <div class="alert-box">{{ data|safe }}</div>
+    {% endif %}
+
+    <!-- Upload form -->
+    <form name="f1" method="post" action="/PredictAction"
+          enctype="multipart/form-data" onsubmit="return validate()">
+      <div class="upload-card">
+        <div class="upload-title">Upload Test Data</div>
+        <input type="file" id="t1" name="t1" accept=".csv" class="upload-input"/>
+        <p class="upload-hint">Select the <strong>testData.csv</strong> file from the Dataset folder</p>
+        <button type="submit" class="submit-btn">Run Detection</button>
+      </div>
+    </form>
+
+    <!-- API info -->
+    <div class="api-info-box">
+      <h3>REST API Access</h3>
+      <p>Integrate predictions into your own applications via the JWT-secured API:</p>
+      <pre class="code-block"># Step 1 — Get token
+POST /api/login
+{ "username": "admin", "password": "SecureCloud@2024" }
+
+# Step 2 — Run prediction
+POST /api/predict
+Authorization: Bearer &lt;token&gt;
+{ "data": [[feature1, feature2, ...41 features...]] }</pre>
+    </div>
+
+  </div>
+
+  <div class="page-footer">
+    SecureCloudML &mdash; Enhancing Data Transmission Security in Cloud Using Machine Learning
+  </div>
+
+</div>
+
+<script>
+function validate() {
+  var x = document.forms["f1"]["t1"].value;
+  if (!x) {
+    alert("Please select a CSV file before submitting.");
+    document.getElementById('t1').focus();
+    return false;
+  }
+  return true;
+}
+</script>
+</body>
+</html>

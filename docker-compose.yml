@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  securecloudml:
+    build: .
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    volumes:
+      - ./model:/app/model
+      - ./Dataset:/app/Dataset
