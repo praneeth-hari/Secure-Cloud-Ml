@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Environment variables (contains secret keys — never commit)
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Large dataset file (download separately)
+Dataset/kdd_data.csv
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+SCREENS.docx
+runJupyter.bat
+CloudSecurity.html

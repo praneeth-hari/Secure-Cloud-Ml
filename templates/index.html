@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>SecureCloudML — Home</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div id="wrapper">
+
+  <!-- Header -->
+  <div id="header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24" fill="#fff" width="32" height="32">
+        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Enhancing The Data Transmission Security In Cloud Using Machine Learning</h1>
+      <p class="subtitle">ML-powered network intrusion detection system</p>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div id="menu">
+    <ul>
+      <li><a href="/index" class="active">Home</a></li>
+      <li><a href="/Predict">Predict Data Security</a></li>
+    </ul>
+  </div>
+
+  <!-- Hero Banner -->
+  <div class="hero-banner">
+    <img src="{{ url_for('static', filename='images/banner.jpg') }}" alt="Cloud Security" class="hero-img"/>
+    <div class="hero-text-overlay">
+      <h2>Cloud Network Intrusion Detection Dashboard</h2>
+      <p>Using KDD Cup dataset with 5 ML algorithms — KNN, ANN, ANN+ABC, Random Forest, and XGBoost — to detect DoS, Probe, R2L, and U2R attacks in real time.</p>
+    </div>
+  </div>
+
+  <!-- Prediction Results -->
+  {% if data %}
+  <div class="page-content">
+    <div class="section-title">Prediction Results</div>
+    <div class="encrypt-badge">
+      Data transmitted securely using <strong>AES-256-CBC encryption</strong> before prediction
+    </div>
+    {{ data|safe }}
+  </div>
+  {% endif %}
+
+  <!-- Dashboard -->
+  {% if chart_data %}
+  <div class="page-content">
+
+    <div class="section-title">Model Performance Dashboard</div>
+
+    <div class="metric-cards" id="metric-cards"></div>
+
+    <div class="charts-row">
+      <div class="chart-box">
+        <h3>Accuracy &amp; F1-Score Comparison</h3>
+        <canvas id="barChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <h3>All Metrics — Radar View</h3>
+        <canvas id="radarChart"></canvas>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:8px;">Detailed Metrics Table</div>
+    <table class="metrics-table" id="metricsTable"></table>
+
+  </div>
+
+  <script>
+    const raw       = {{ chart_data|safe }};
+    const labels    = raw.labels;
+    const accuracy  = raw.accuracy;
+    const precision = raw.precision;
+    const recall    = raw.recall;
+    const fscore    = raw.fscore;
+
+    const COLORS = [
+      'rgba(26,115,232,0.85)',
+      'rgba(15,157,88,0.85)',
+      'rgba(244,180,0,0.85)',
+      'rgba(219,68,55,0.85)',
+      'rgba(103,58,183,0.85)'
+    ];
+
+    const cardData = [
+      { title: 'Best Accuracy',  value: Math.max(...accuracy).toFixed(2)+'%',  label: 'ACCURACY',  model: labels[accuracy.indexOf(Math.max(...accuracy))] },
+      { title: 'Best F1-Score',  value: Math.max(...fscore).toFixed(2)+'%',   label: 'F1-SCORE',  model: labels[fscore.indexOf(Math.max(...fscore))] },
+      { title: 'Best Precision', value: Math.max(...precision).toFixed(2)+'%', label: 'PRECISION', model: labels[precision.indexOf(Math.max(...precision))] },
+      { title: 'Best Recall',    value: Math.max(...recall).toFixed(2)+'%',   label: 'RECALL',    model: labels[recall.indexOf(Math.max(...recall))] },
+    ];
+    const cc = document.getElementById('metric-cards');
+    cardData.forEach(c => {
+      cc.innerHTML += `<div class="metric-card">
+        <div class="card-value">${c.value}</div>
+        <div class="card-title">${c.label}</div>
+        <div class="card-model">${c.model}</div>
+      </div>`;
+    });
+
+    new Chart(document.getElementById('barChart'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Accuracy (%)',  data: accuracy,  backgroundColor: 'rgba(26,115,232,0.80)' },
+          { label: 'F1-Score (%)',  data: fscore,    backgroundColor: 'rgba(15,157,88,0.80)'  },
+          { label: 'Precision (%)', data: precision, backgroundColor: 'rgba(244,180,0,0.80)'  },
+          { label: 'Recall (%)',    data: recall,    backgroundColor: 'rgba(219,68,55,0.80)'  },
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { min: 50, max: 100, title: { display: true, text: 'Score (%)' } } }
+      }
+    });
+
+    new Chart(document.getElementById('radarChart'), {
+      type: 'radar',
+      data: {
+        labels: ['Accuracy','Precision','Recall','F1-Score'],
+        datasets: labels.map((name, i) => ({
+          label: name,
+          data: [accuracy[i], precision[i], recall[i], fscore[i]],
+          borderColor: COLORS[i],
+          backgroundColor: COLORS[i].replace('0.85','0.12'),
+          pointBackgroundColor: COLORS[i],
+        }))
+      },
+      options: {
+        responsive: true,
+        scales: { r: { min: 50, max: 100 } },
+        plugins: { legend: { position: 'top' } }
+      }
+    });
+
+    const tbl = document.getElementById('metricsTable');
+    tbl.innerHTML = `<thead><tr>
+      <th>Algorithm</th><th>Accuracy (%)</th><th>Precision (%)</th><th>Recall (%)</th><th>F1-Score (%)</th>
+    </tr></thead><tbody>` +
+    labels.map((name, i) => `<tr>
+      <td><strong>${name}</strong></td>
+      <td>${accuracy[i]}</td><td>${precision[i]}</td><td>${recall[i]}</td><td>${fscore[i]}</td>
+    </tr>`).join('') + `</tbody>`;
+  </script>
+  {% endif %}
+
+  <div class="page-footer">
+    SecureCloudML &mdash; Enhancing Data Transmission Security in Cloud Using Machine Learning
+  </div>
+
+</div>
+</body>
+</html>
