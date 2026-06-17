@@ -1,3 +1,4 @@
+import io
 import os
 import json
 import pickle
@@ -7,10 +8,6 @@ warnings.filterwarnings('ignore')
 
 import numpy as np
 import pandas as pd
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from sklearn.model_selection import train_test_split
@@ -273,7 +270,6 @@ def Predict():
 def PredictAction():
     uploaded = request.files.get('t1')
     if uploaded and uploaded.filename.endswith('.csv'):
-        import io
         test_dataset = pd.read_csv(io.BytesIO(uploaded.read()))
     else:
         test_dataset = pd.read_csv("Dataset/testData.csv")
@@ -338,11 +334,13 @@ def PredictAction():
 
 # ---- REST API ----------------------------------------------------------
 
+_API_USER = {'username': 'admin', 'password': 'SecureCloud@2024'}
+
 @app.route('/api/login', methods=['POST'])
 def api_login():
     body = request.get_json(silent=True) or {}
-    if (body.get('username') == DEMO_USER['username'] and
-            body.get('password') == DEMO_USER['password']):
+    if (body.get('username') == _API_USER['username'] and
+            body.get('password') == _API_USER['password']):
         token = create_access_token(identity=body['username'])
         return jsonify(access_token=token), 200
     return jsonify(error='Invalid credentials'), 401
@@ -388,4 +386,4 @@ def api_predict():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
