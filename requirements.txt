@@ -9,3 +9,4 @@ Flask-JWT-Extended==4.7.4
 Werkzeug==3.1.8
 python-dotenv==1.2.2
 pycryptodome==3.23.0
+waitress==3.0.1        # Windows production WSGI server (use gunicorn on Linux/Mac)
