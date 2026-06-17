@@ -32,3 +32,17 @@ Thumbs.db
 SCREENS.docx
 runJupyter.bat
 CloudSecurity.html
+test.py
+templates/login.html
+
+# Docker
+.dockerignore
+
+# Test artifacts
+*.log
+logs/
+
+# Pytest / coverage
+.pytest_cache/
+htmlcov/
+.coverage
