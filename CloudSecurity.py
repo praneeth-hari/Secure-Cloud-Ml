@@ -3,8 +3,16 @@ import os
 import json
 import pickle
 import random
+import logging
 import warnings
 warnings.filterwarnings('ignore')
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s  %(levelname)s  %(name)s — %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+)
+logger = logging.getLogger('SecureCloudML')
 
 import numpy as np
 import pandas as pd
@@ -30,7 +38,9 @@ from encryption import encrypt_data, decrypt_data
 # ---------------------------------------------------------------------------
 # Data loading & preprocessing
 # ---------------------------------------------------------------------------
-dataset = pd.read_csv("Dataset/kdd_data.csv")
+DATASET_PATH = os.getenv('DATASET_PATH', 'Dataset/kdd_data.csv')
+logger.info("Loading dataset from %s", DATASET_PATH)
+dataset = pd.read_csv(DATASET_PATH)
 labels = np.unique(dataset['Attack_Type'].to_numpy())
 
 label_encoder = []
@@ -78,7 +88,7 @@ def calculateMetrics(name, y_true, y_pred):
     precision.append(round(p, 2))
     recall.append(round(r, 2))
     fscore.append(round(f, 2))
-    print(f"{name:15s}  Acc={a:.2f}%  P={p:.2f}%  R={r:.2f}%  F1={f:.2f}%")
+    logger.info("%-15s  Acc=%.2f%%  P=%.2f%%  R=%.2f%%  F1=%.2f%%", name, a, p, r, f)
 
 # ---------------------------------------------------------------------------
 # Model 1: KNN
@@ -270,8 +280,10 @@ def Predict():
 def PredictAction():
     uploaded = request.files.get('t1')
     if uploaded and uploaded.filename.endswith('.csv'):
+        logger.info("Prediction request — uploaded file: %s", uploaded.filename)
         test_dataset = pd.read_csv(io.BytesIO(uploaded.read()))
     else:
+        logger.info("Prediction request — using default testData.csv")
         test_dataset = pd.read_csv("Dataset/testData.csv")
     raw_data = test_dataset.values.tolist()
 
@@ -346,6 +358,11 @@ def api_login():
     return jsonify(error='Invalid credentials'), 401
 
 
+@app.route('/api/health', methods=['GET'])
+def api_health():
+    return jsonify(status='ok', models=len(algorithm_names), version='1.0.0'), 200
+
+
 @app.route('/api/predict', methods=['POST'])
 @jwt_required()
 def api_predict():
@@ -354,8 +371,17 @@ def api_predict():
     rows = body.get('data')
     if not rows:
         return jsonify(error='Provide "data" key with list of feature rows'), 400
+    if not isinstance(rows, list) or not all(isinstance(r, list) for r in rows):
+        return jsonify(error='"data" must be a list of lists'), 400
+    expected = X_train.shape[1]
+    if any(len(r) != expected for r in rows):
+        return jsonify(error=f'Each row must have exactly {expected} features'), 400
 
-    arr = scaler.transform(np.array(rows, dtype=float))
+    try:
+        arr = scaler.transform(np.array(rows, dtype=float))
+    except (ValueError, TypeError) as e:
+        logger.warning("Invalid predict input: %s", e)
+        return jsonify(error='All feature values must be numeric'), 400
 
     pred_knn = knn_cls.predict(arr).tolist()
     pred_ann = np.argmax(ann_model.predict(arr), axis=1).tolist()
@@ -386,4 +412,11 @@ def api_predict():
 
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    import sys
+    if sys.platform == 'win32':
+        from waitress import serve
+        logger.info("Starting production server on http://0.0.0.0:5000")
+        serve(app, host='0.0.0.0', port=5000)
+    else:
+        # On Linux/Mac use: gunicorn CloudSecurity:app
+        app.run(host='0.0.0.0', port=5000, debug=False)
