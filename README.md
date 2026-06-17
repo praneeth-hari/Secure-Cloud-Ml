@@ -113,12 +113,15 @@ docker-compose up --build
 
 ### REST API Usage
 ```bash
-# Get JWT token
+# Get JWT token (use credentials from your .env file)
 curl -X POST http://localhost:5000/api/login \
   -H "Content-Type: application/json" \
-  -d '{"username": "admin", "password": "SecureCloud@2024"}'
+  -d '{"username": "your_api_username", "password": "your_api_password"}'
 
-# Run prediction
+# Health check (no auth required)
+curl http://localhost:5000/api/health
+
+# Run prediction (replace <token> with token from /api/login)
 curl -X POST http://localhost:5000/api/predict \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
@@ -141,14 +144,6 @@ Sample CSV for testing is provided at `Dataset/testData.csv` with 11 rows coveri
 
 ---
 
-## Academic Context
-
-**Title**: Enhancing The Data Transmission Security In Cloud Using Machine Learning  
-**Dataset**: KDD Cup 1999 Network Intrusion Detection  
-**Key Contribution**: Combining AES-256-CBC encryption with ML-based intrusion detection to demonstrate secure cloud data transmission
-
----
-
 ## License
 
-This project is for academic purposes.
+MIT License — free to use, modify, and distribute.

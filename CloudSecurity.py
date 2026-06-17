@@ -29,7 +29,7 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.callbacks import ModelCheckpoint
 
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 
 from config import SECRET_KEY, JWT_SECRET_KEY
@@ -61,13 +61,13 @@ np.random.shuffle(indices)
 X = X[indices]
 Y = Y[indices]
 
-print(f"Dataset ready — {X.shape[0]} samples, {X.shape[1]} features")
+logger.info("Dataset ready — %d samples, %d features", X.shape[0], X.shape[1])
 
 X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 y_train1 = to_categorical(y_train)
 y_test1  = to_categorical(y_test)
 
-print(f"Train: {X_train.shape[0]}  |  Test: {X_test.shape[0]}")
+logger.info("Train: %d  |  Test: %d", X_train.shape[0], X_test.shape[0])
 
 # ---------------------------------------------------------------------------
 # Metrics tracking  (5 models)
@@ -231,10 +231,10 @@ calculateMetrics("XGBoost", y_test, predict_xgb)
 # ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
-print("\n--- Final Results ---")
+logger.info("--- Final Results ---")
 for i, name in enumerate(algorithm_names):
-    print(f"{name:15s}  Acc={accuracy[i]:.2f}%  P={precision[i]:.2f}%  "
-          f"R={recall[i]:.2f}%  F1={fscore[i]:.2f}%")
+    logger.info("%-15s  Acc=%.2f%%  P=%.2f%%  R=%.2f%%  F1=%.2f%%",
+                name, accuracy[i], precision[i], recall[i], fscore[i])
 
 # ---------------------------------------------------------------------------
 # Flask app
@@ -254,12 +254,10 @@ def _get_chart_data():
     }
 
 
-def _count_attack_types(predictions):
-    counts = {}
-    for p in predictions:
-        lbl = labels[p] if p < len(labels) else 'unknown'
-        counts[lbl] = counts.get(lbl, 0) + 1
-    return counts
+def _badge(p):
+    lbl = labels[p] if p < len(labels) else 'unknown'
+    cls = 'normal' if lbl == 'normal' else 'attack'
+    return f'<span class="badge {cls}">{lbl}</span>'
 
 
 # ---- Web Routes --------------------------------------------------------
@@ -321,19 +319,14 @@ def PredictAction():
         <tbody>
     '''
     for i in range(len(pred_knn)):
-        def badge(p):
-            lbl = labels[p] if p < len(labels) else 'unknown'
-            cls = 'normal' if lbl == 'normal' else 'attack'
-            return f'<span class="badge {cls}">{lbl}</span>'
-
         output += f'''
             <tr>
                 <td>{i + 1}</td>
-                <td>{badge(pred_knn[i])}</td>
-                <td>{badge(pred_ann[i])}</td>
-                <td>{badge(pred_abc[i])}</td>
-                <td>{badge(pred_rf[i])}</td>
-                <td>{badge(pred_xgb[i])}</td>
+                <td>{_badge(pred_knn[i])}</td>
+                <td>{_badge(pred_ann[i])}</td>
+                <td>{_badge(pred_abc[i])}</td>
+                <td>{_badge(pred_rf[i])}</td>
+                <td>{_badge(pred_xgb[i])}</td>
             </tr>'''
 
     output += '</tbody></table>'
@@ -346,7 +339,10 @@ def PredictAction():
 
 # ---- REST API ----------------------------------------------------------
 
-_API_USER = {'username': 'admin', 'password': 'SecureCloud@2024'}
+_API_USER = {
+    'username': os.getenv('API_USERNAME', 'admin'),
+    'password': os.getenv('API_PASSWORD', ''),
+}
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
