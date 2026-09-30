@@ -1,0 +1,17 @@
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.env
+.git/
+.gitignore
+.ipynb_checkpoints/
+Dataset/kdd_data.csv
+SCREENS.docx
+runJupyter.bat
+CloudSecurity.html
+*.log
+.dockerignore
+README.md
+.env.example
