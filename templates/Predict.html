@@ -86,7 +86,7 @@
       <div class="upload-card">
         <div class="upload-title">Upload Test Data</div>
         <input type="file" id="t1" name="t1" accept=".csv" class="upload-input"/>
-        <p class="upload-hint">Select the <strong>testData.csv</strong> file from the Dataset folder</p>
+        <p class="upload-hint">Select a <strong>.csv</strong> file or leave empty to evaluate the default <strong>testData.csv</strong> (covers Normal, DoS, Probe, R2L, U2R)</p>
         <button type="submit" class="submit-btn">Run Detection</button>
       </div>
     </form>
@@ -115,12 +115,7 @@ Authorization: Bearer &lt;token&gt;
 
 <script>
 function validate() {
-  var x = document.forms["f1"]["t1"].value;
-  if (!x) {
-    alert("Please select a CSV file before submitting.");
-    document.getElementById('t1').focus();
-    return false;
-  }
+  // If user has not chosen a file, form proceeds and server defaults to Dataset/testData.csv
   return true;
 }
 </script>
