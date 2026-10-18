@@ -1,6 +1,6 @@
 # SecureCloudML — Enhancing Data Transmission Security in Cloud Using Machine Learning
 
-A Flask-based web application that detects network intrusions using 5 machine learning algorithms on the KDD Cup 99 dataset, with AES-256-CBC encryption securing all data transmissions.
+A Flask-based web application that detects network intrusions using 5 machine learning algorithms on the NSL-KDD (KDDTrain+, 125,973 records, 41 features) dataset, with AES-256-CBC encryption securing all data transmissions.
 
 ---
 
@@ -17,24 +17,24 @@ This project addresses the problem of network security in cloud environments by:
 
 | Model | Accuracy | Precision | Recall | F1 Score |
 |---|---|---|---|---|
-| KNN | 96.35% | 69.49% | 67.57% | 68.48% |
-| ANN | 97.52% | 69.36% | 73.12% | 71.04% |
-| ANN + ABC | 99.11% | 85.83% | 95.75% | 89.49% |
-| Random Forest | 99.83% | 94.60% | 92.06% | 93.28% |
-| **XGBoost** | **99.92%** | **97.43%** | **97.32%** | **97.37%** |
+| KNN | 96.32% | 69.12% | 66.68% | 67.83% |
+| ANN | 97.37% | 71.73% | 67.61% | 69.43% |
+| ANN + ABC | 98.98% | 94.26% | 84.77% | 88.46% |
+| Random Forest | 99.95% | 99.87% | 99.65% | 99.76% |
+| **XGBoost** | **99.99%** | **99.99%** | **99.99%** | **99.99%** |
 
-> ABC = Artificial Bee Colony optimization for feature selection
+> **Note**: Precision, Recall, and F1-Score are macro-averaged across all 5 classes. Scores are obtained from a random stratified 80/20 train/test split of a single dataset file. ABC = Artificial Bee Colony optimization for feature selection.
 
 ---
 
 ## Tech Stack
 
-- **Backend**: Python 3.13, Flask 3.1
+- **Backend**: Python 3.11, Flask 3.1
 - **ML**: scikit-learn, TensorFlow/Keras, XGBoost
 - **Encryption**: AES-256-CBC (pycryptodome)
 - **Frontend**: HTML5, CSS3, Chart.js
 - **API**: REST + JWT authentication
-- **Dataset**: KDD Cup 1999 (125,973 samples, 41 features)
+- **Dataset**: NSL-KDD (KDDTrain+, 125,973 records, 41 features)
 
 ---
 
@@ -42,21 +42,24 @@ This project addresses the problem of network security in cloud environments by:
 
 ```
 SecureCloudML/
-├── CloudSecurity.py       # Main Flask app + ML training
+├── app.py                 # Main Flask app + REST API + Web UI
+├── train.py               # ML training and evaluation pipeline
 ├── encryption.py          # AES-256-CBC encrypt/decrypt
 ├── config.py              # App configuration
 ├── requirements.txt       # Python dependencies
 ├── Dockerfile             # Docker support
 ├── docker-compose.yml
 ├── Dataset/
+│   ├── kdd_data.csv       # Training dataset (NSL-KDD KDDTrain+)
 │   └── testData.csv       # Sample test data (11 rows, 5 attack types)
-├── model/                 # Pre-trained model weights
+├── model/                 # Pre-trained model weights & artifacts
 ├── static/
 │   ├── style.css
 │   └── images/
 └── templates/
     ├── index.html         # Dashboard with charts
-    └── Predict.html       # Prediction page
+    ├── Predict.html       # Prediction page
+    └── login.html         # Login page
 ```
 
 ---
@@ -75,7 +78,7 @@ pip install -r requirements.txt
 ```
 
 ### 3. Download the dataset
-Download **KDD Cup 1999 dataset** and place it as:
+Download **NSL-KDD (KDDTrain+, 125,973 records, 41 features)** and place it as:
 ```
 Dataset/kdd_data.csv
 ```
@@ -91,7 +94,7 @@ AES_KEY=your-64-char-hex-key
 
 ### 5. Run the app
 ```bash
-python CloudSecurity.py
+python app.py
 ```
 Open `http://127.0.0.1:5000` in your browser.
 
